@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  backend:
+    container_name: django_group_${GROUPID}
+    build:
+      context: backend/secfit/
+      dockerfile: Dockerfile
+      args:
+        DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
+        DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
+        DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
+    environment: 
+      - GROUPID=${GROUPID}
+    networks:
+      backend_bridge:
+        ipv4_address: 10.${GROUPID}.0.4
+
+  application:
+    container_name: node_group_${GROUPID}
+    build:
+      context: frontend/
+      dockerfile: Dockerfile
+      args:
+        GROUPID: ${GROUPID}
+        DOMAIN: ${DOMAIN}
+        URL_PREFIX: ${URL_PREFIX}
+        PORT_PREFIX: ${PORT_PREFIX}
+    networks:
+      backend_bridge:
+        ipv4_address: 10.${GROUPID}.0.5
+
+  web:
+    container_name: nginx_group_${GROUPID}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT_PREFIX}${GROUPID}:80
+    environment: 
+      - GROUPID=${GROUPID}
+      - PORT_PREFIX=${PORT_PREFIX}
+    networks:
+      backend_bridge:
+        ipv4_address: 10.${GROUPID}.0.6
+
+networks:  
+  backend_bridge:
+    driver: bridge
+    ipam:
+        config:
+          - subnet: 10.${GROUPID}.0.0/18

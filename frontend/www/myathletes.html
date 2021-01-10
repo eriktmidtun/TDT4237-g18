@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Athletes</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <script src="https://kit.fontawesome.com/0ce6c392ca.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="scripts/navbar.js" type="text/javascript" defer></script>
+</head>
+<body>
+    <navbar-el></navbar-el>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg text-center">
+                <h3 class="mt-5">Athletes & Files</h3>
+                <p>On this page you can view/change your roster of athletes. You can also upload files for each of your athletes.
+                </p>
+            </div>
+        </div>
+
+        <form id="form-roster" class="row">
+            <div class="col-lg-6">
+                <label class="form-label" for="controls">Athletes</label>
+                <div id="controls"> 
+                </div>
+                <input type="button" class="btn btn-primary mt-1 mb-2" id="button-submit-roster" value="Submit">
+            </div>
+            <div class="col-lg-6"></div>
+        </form>
+        <div class="row">
+            <div class="col">
+                <label for="list-tab" class="form-label">Files</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2">
+                <div class="list-group" id="list-tab" role="tablist"></div>
+            </div>
+            <div class="col-lg-4">
+              <div class="tab-content" id="nav-tabContent"></div>
+            </div>
+            <div class="col-lg-6"></div>
+          </div>
+    </div>
+
+    <template id="template-filled-athlete">
+        <div class="entry input-group">
+            <input class="form-control" name="athlete" type="text"/>
+                <button class="btn btn-danger btn-remove" type="button">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </span>
+        </div>
+    </template>
+
+    <template id="template-empty-athlete">
+        <div class="entry input-group">
+            <input class="form-control" name="athlete" type="text"/>
+                <button class="btn btn-success btn-add" type="button">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </span>
+        </div>
+    </template>
+
+    <template id="template-athlete-tab">
+        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#list-tab" role="tab"></a>
+    </template>
+
+    <template id="template-files">
+        <div class="tab-pane fade" role="tabpanel">
+            <form class="input-group">
+                    <input type="file" class="form-control" name="files" multiple disabled>
+                    <input type="button" class="btn btn-outline-secondary" value="Upload" disabled>
+            </form>
+            <div class="uploaded-files ms-1 mt-2">            
+            </div>
+        </div>
+    </template>
+
+    <template id="template-file">
+        <a class="me-2 link-block" href="#"></a>
+    </template>
+
+    <script src="scripts/defaults.js"></script>
+    <script src="scripts/scripts.js"></script>
+    <script src="scripts/myathletes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+</body>
+</html>

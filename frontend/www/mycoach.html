@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Coach</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/0ce6c392ca.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="scripts/navbar.js" type="text/javascript" defer></script>
+</head>
+
+<body>
+    <navbar-el></navbar-el>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg text-center">
+                <h3 class="mt-5">Coach & Files</h3>
+                <p>On this page you can view/change your current coach as well as view the files your coaches (present
+                    and previous)
+                    have uploaded.
+                </p>
+            </div>
+        </div>
+        <form id="form-coach" class="row">
+            <div class="col-lg-6 mb-3">
+                <label for="input-coach" class="form-label">Coach</label>
+                <input type="text" class="form-control mb-1" placeholder="User ID" id="input-coach" name="coach"
+                    readonly>
+                <input type="button" class="btn btn-primary" id="button-edit-coach" value="Edit">
+                <input type="button" class="btn btn-primary hide" id="button-set-coach" value=" OK ">
+                <input type="button" class="btn btn-secondary hide" id="button-cancel-coach" value="Cancel">
+            </div>
+            <div class="col-lg-6 mb-3">
+                <label for="list-offers" class="form-label">Offers</label>
+                <ul class="list-group" id="list-offers">
+
+                </ul>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col">
+                <label for="list-tab" class="form-label">Files</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="list-group" id="list-tab" role="tablist"></div>
+            </div>
+            <div class="col-3">
+                <div class="tab-content" id="nav-tabContent"></div>
+            </div>
+            <div class="col-6"></div>
+        </div>
+    </div>
+
+    <template id="template-owner-tab">
+        <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#list-tab" role="tab"></a>
+    </template>
+
+    <template id="template-files">
+        <div class="tab-pane fade" role="tabpanel"></div>
+    </template>
+
+    <template id="template-file">
+        <a class="me-2 link-block" href="#"></a>
+    </template>
+
+    <template id="template-offer">
+        <li class="list-group-item">
+            <span></span>
+            <div class="btn-group ms-4" role="group">
+                <button type="button" class="btn btn-success">Accept</button>
+                <button type="button" class="btn btn-danger">Decline</button>
+              </div>
+    </template>
+
+
+    <script src="scripts/defaults.js"></script>
+    <script src="scripts/scripts.js"></script>
+    <script src="scripts/mycoach.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+.workout {
+
+}
+
+.hide {
+  display: none !important;
+}
+
+/* Adapted from https://bootsnipp.com/snippets/z8699 START */
+.divider-text {
+  position: relative;
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.divider-text span {
+  padding: 7px;
+  font-size: 12px;
+  position: relative;   
+  z-index: 2;
+}
+.divider-text:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  top: 55%;
+  left: 0;
+  z-index: 1;
+}
+
+.btn-facebook {
+  background-color: #405D9D;
+  color: #fff;
+}
+.btn-twitter {
+  background-color: #42AEEC;
+  color: #fff;
+}
+/* Adapted from https://bootsnipp.com/snippets/z8699 END */
+.comment-wrapper .panel-body {
+  max-height:650px;
+  overflow:auto;
+}
+
+.comment-wrapper .media-list .media img {
+  width:64px;
+  height:64px;
+  border:2px solid #e5e7e8;
+}
+
+.comment-wrapper .media-list .media {
+  border-bottom:1px dashed #efefef;
+  margin-bottom:25px;
+}
+
+.entry:not(:first-of-type)
+{
+    margin-top: 10px;
+}
+
+.link-block {
+  display: block;
+}
