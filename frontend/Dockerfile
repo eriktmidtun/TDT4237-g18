@@ -1,5 +1,5 @@
 # Get docker image
-FROM debian
+FROM debian:buster-slim
 
 # Import groupid and host environment variable
 ARG GROUPID

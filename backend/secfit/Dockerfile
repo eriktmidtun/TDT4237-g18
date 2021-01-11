@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.8.5
+FROM python:3.8.5-slim
 
 # These two environment variables prevent __pycache__/ files.
 ENV PYTHONUNBUFFERED 1
