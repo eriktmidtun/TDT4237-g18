@@ -124,3 +124,5 @@ If you want to run this as a mobile application
 - For browser, do `cordova run browser`
 
 It's possible you will need to add the platforms you want to run and build.
+The following documentation can be used to run the application in an Android emulator: \
+https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html
