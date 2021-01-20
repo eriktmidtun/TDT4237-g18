@@ -110,6 +110,7 @@ function handleEditWorkoutButtonClick() {
     let removeExerciseButton = document.querySelector("#btn-remove-exercise");
     
     setReadOnly(false, "#form-workout");
+    document.querySelector("#inputOwner").readOnly = true;  // owner field should still be readonly 
 
     editWorkoutButton.className += " hide";
     okWorkoutButton.className = okWorkoutButton.className.replace(" hide", "");
