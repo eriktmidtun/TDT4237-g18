@@ -228,20 +228,7 @@ function removeExercise(event) {
 }
 
 function addComment(author, text, date, append) {
-    //TODO: Use <template> instead
-    /* Taken from https://www.bootdey.com/snippets/view/Simple-Comment-panel#css
-                                  <li class="media">
-                                      <div class="media-body">
-                                          <span class="text-muted pull-right">
-                                              <small class="text-muted">30 min ago</small>
-                                          </span>
-                                          <strong class="text-success">MartinoMont</strong>
-                                          <p>
-                                              Lorem ipsum dolor sit amet, consectetur adipiscing elit..
-                                          </p>
-                                      </div>
-                                  </li>
-                                  */
+    /* Taken from https://www.bootdey.com/snippets/view/Simple-Comment-panel#css*/
     let commentList = document.querySelector("#comment-list");
     let listElement = document.createElement("li");
     listElement.className = "media";
@@ -251,7 +238,13 @@ function addComment(author, text, date, append) {
     dateSpan.className = "text-muted pull-right me-1";
     let smallText = document.createElement("small");
     smallText.className = "text-muted";
-    smallText.innerText = `${date.substring(0, 10)} ${date.substring(11, 19)}`;
+
+    if (date != "Now") {
+        let localDate = new Date(date);
+        smallText.innerText = localDate.toLocaleString();
+    } else {
+        smallText.innerText = date;
+    }
 
     dateSpan.appendChild(smallText);
     commentBody.appendChild(dateSpan);
