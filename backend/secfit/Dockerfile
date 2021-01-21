@@ -43,5 +43,8 @@ RUN DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME} \
     echo "WARNING: This error is ignored as it most likely is 'That username is already taken.'" \
     && echo "If you wish to alter the user credentials, then delete the user first."
 
+# Create some exercises from seed data
+RUN python manage.py loaddata seed.json
+
 # Run wsgi server with gunicorn
 CMD ["gunicorn", "secfit.wsgi", "--log-file", "-", "-b", "0.0.0.0:8000"]
