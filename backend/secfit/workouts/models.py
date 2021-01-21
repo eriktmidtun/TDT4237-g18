@@ -139,6 +139,7 @@ class WorkoutFile(models.Model):
     )
     file = models.FileField(upload_to=workout_directory_path)
 
+
 class RememberMe(models.Model):
     """Django model for an remember_me cookie used for remember me functionality.
 

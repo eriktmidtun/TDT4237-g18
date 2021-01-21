@@ -100,8 +100,7 @@ class OfferList(
 
         if self.request.user:
             qs = Offer.objects.filter(
-                Q(owner=self.request.user)
-                | Q(recipient=self.request.user)
+                Q(owner=self.request.user) | Q(recipient=self.request.user)
             ).distinct()
 
             # filtering by status (if provided)
@@ -116,7 +115,6 @@ class OfferList(
                     qs = qs.filter(owner=self.request.user)
                 elif category == "received":
                     qs = qs.filter(recipient=self.request.user)
-            
 
         return qs
 

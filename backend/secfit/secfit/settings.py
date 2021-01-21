@@ -15,13 +15,13 @@ import os
 
 
 # Get the GROUPID variable to accept connections from the application server and NGINX
-groupid = os.environ.get("GROUPID", '0')
+groupid = os.environ.get("GROUPID", "0")
 
 # Email configuration
 # The host must be running within NTNU's VPN (vpn.ntnu.no) to allow this config
 # Usage: https://docs.djangoproject.com/en/3.1/topics/email/#obtaining-an-instance-of-an-email-backend
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mx.ntnu.no'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "mx.ntnu.no"
 EMAIL_USE_TLS = False
 EMAIL_PORT = 25
 
@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [
     "10." + groupid + ".0.6",
     "10." + groupid + ".0.4",
     "molde.idi.ntnu.no",
-    "10.0.2.2"
+    "10.0.2.2",
 ]
 
 # Application definition

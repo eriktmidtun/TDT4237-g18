@@ -6,7 +6,7 @@ from rest_framework import parsers
 # Thanks to https://stackoverflow.com/a/50514630
 class MultipartJsonParser(parsers.MultiPartParser):
     """Parser for serializing multipart data containing both files and JSON.
-    
+
     This is currently unused.
     """
 
