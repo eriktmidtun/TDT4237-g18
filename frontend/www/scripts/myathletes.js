@@ -93,6 +93,12 @@ async function displayFiles() {
         let fileInput = tabPanel.querySelector(".form-control");
         fileInput.disabled = false;
     }
+
+    if (user.athlete_files.length == 0 && user.athletes.length == 0) {
+        let p = document.createElement("p");
+        p.innerText = "There are currently no athletes or uploaded files.";
+        document.querySelector("#list-files-div").append(p);
+    }
 }
 
 function createTabContents(templateAthlete, athlete, listTab, templateFiles, navTabContent) {
