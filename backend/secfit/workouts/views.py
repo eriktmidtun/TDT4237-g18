@@ -107,7 +107,7 @@ class WorkoutList(
     permission_classes = [permissions.IsAuthenticated]  # User must be authenticated to create/view workouts
     parser_classes = [MultipartJsonParser, JSONParser]  # For parsing JSON and Multi-part requests
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['name', 'date', 'owner']
+    ordering_fields = ['name', 'date', 'owner__username']
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

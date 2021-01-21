@@ -18,10 +18,12 @@ async function fetchWorkouts(ordering) {
             let h5 = aWorkout.querySelector("h5");
             h5.textContent = workout.name;
 
+            let localDate = new Date(workout.date);
+
             let table = aWorkout.querySelector("table");
             let rows = table.querySelectorAll("tr");
-            rows[0].querySelectorAll("td")[1].textContent = workout.date.substring(0,10); // Date
-            rows[1].querySelectorAll("td")[1].textContent = workout.date.substring(11,19); // Time
+            rows[0].querySelectorAll("td")[1].textContent = localDate.toLocaleDateString(); // Date
+            rows[1].querySelectorAll("td")[1].textContent = localDate.toLocaleTimeString(); // Time
             rows[2].querySelectorAll("td")[1].textContent = workout.owner_username; //Owner
             rows[3].querySelectorAll("td")[1].textContent = workout.exercise_instances.length; // Exercises
 
@@ -54,6 +56,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     currentSort.innerHTML = (ordering.startsWith("-") ? "Descending" : "Ascending") + " " + ordering.replace("-", "");
 
     let currentUser = await getCurrentUser();
+    // grab username
+    if (ordering.includes("owner")) {
+        ordering += "__username";
+    }
     let workouts = await fetchWorkouts(ordering);
     
     let tabEls = document.querySelectorAll('a[data-bs-toggle="list"]');
