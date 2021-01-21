@@ -50,18 +50,20 @@ class IsCoachOfWorkoutAndVisibleToCoach(permissions.BasePermission):
             obj.workout.visibility == "PU" or obj.workout.visibility == "CO"
         )
 
+
 class IsPublic(permissions.BasePermission):
-    """Checks whether the object (workout) has visibility of Public.
-    """
+    """Checks whether the object (workout) has visibility of Public."""
 
     def has_object_permission(self, request, view, obj):
         return obj.visibility == "PU"
 
+
 class IsWorkoutPublic(permissions.BasePermission):
-    """Checks whether the object's workout has visibility of Public.
-    """
+    """Checks whether the object's workout has visibility of Public."""
+
     def has_object_permission(self, request, view, obj):
         return obj.workout.visibility == "PU"
+
 
 class IsReadOnly(permissions.BasePermission):
     """Checks whether the HTTP request verb is only for retrieving data (GET, HEAD, OPTIONS)"""

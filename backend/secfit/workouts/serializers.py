@@ -137,7 +137,7 @@ class WorkoutSerializer(serializers.HyperlinkedModelSerializer):
         # zip() will yield n 2-tuples, where n is
         # min(len(exercise_instance), len(exercise_instance_data))
         for exercise_instance, exercise_instance_data in zip(
-                exercise_instances.all(), exercise_instances_data
+            exercise_instances.all(), exercise_instances_data
         ):
             exercise_instance.exercise = exercise_instance_data.get(
                 "exercise", exercise_instance.exercise
@@ -215,6 +215,7 @@ class ExerciseSerializer(serializers.HyperlinkedModelSerializer):
         model = Exercise
         fields = ["url", "id", "name", "description", "unit", "instances"]
 
+
 class RememberMeSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for an RememberMe. Hyperlinks are used for relationships by default.
 
@@ -223,7 +224,7 @@ class RememberMeSerializer(serializers.HyperlinkedModelSerializer):
     Attributes:
         remember_me:    Value of cookie used for remember me functionality
     """
-    
+
     class Meta:
         model = RememberMe
         fields = ["remember_me"]

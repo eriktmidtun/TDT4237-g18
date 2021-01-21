@@ -42,6 +42,16 @@ class AthleteFile(models.Model):
 
 
 class Offer(models.Model):
+    """Django model for a coaching offer that one user sends to another.
+
+    Each offer has an owner, a recipient, a status, and a timestamp.
+
+    Attributes:
+        owner:       Who sent the offer
+        recipient:   Who received the offer
+        status:      The current status of the offer (accept, declined, or pending)
+        timestamp:   When the offer was sent.
+    """
     owner = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="sent_offers"
     )
@@ -58,13 +68,5 @@ class Offer(models.Model):
         (DECLINED, "Declined"),
     )
 
-    #ATHLETE = "a"
-    #COACH = "c"
-    #OFFER_TYPE_CHOICES = ((ATHLETE, "Athlete"), (COACH, "Coach"))
-
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default=PENDING)
-    #offer_type = models.CharField(
-    #    max_length=8, choices=OFFER_TYPE_CHOICES, default=ATHLETE
-    #)
-    #stale = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)

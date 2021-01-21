@@ -1,4 +1,3 @@
-//TODO: Globals are bad! Fix this
 let cancelWorkoutButton;
 let okWorkoutButton;
 let deleteWorkoutButton;
@@ -22,8 +21,10 @@ async function retrieveWorkout(id) {
             let input = form.querySelector(selector);
             let newVal = workoutData[key];
             if (key == "date") {
-                // Removing Z
-                newVal = newVal.substring(0, newVal.length - 1);
+                // Creating a valid datetime-local string with the correct local time
+                let date = new Date(newVal);
+                date = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000)).toISOString(); // get ISO format for local time
+                newVal = date.substring(0, newVal.length - 1);    // remove Z (since this is a local time, not UTC)
             }
             if (key != "files") {
                 input.value = newVal;
@@ -110,6 +111,7 @@ function handleEditWorkoutButtonClick() {
     let removeExerciseButton = document.querySelector("#btn-remove-exercise");
     
     setReadOnly(false, "#form-workout");
+    document.querySelector("#inputOwner").readOnly = true;  // owner field should still be readonly 
 
     editWorkoutButton.className += " hide";
     okWorkoutButton.className = okWorkoutButton.className.replace(" hide", "");
@@ -153,7 +155,8 @@ function generateWorkoutForm() {
     let submitForm = new FormData();
 
     submitForm.append("name", formData.get('name'));
-    submitForm.append("date", formData.get('date'));
+    let date = new Date(formData.get('date')).toISOString();
+    submitForm.append("date", date);
     submitForm.append("notes", formData.get("notes"));
     submitForm.append("visibility", formData.get("visibility"));
 
@@ -228,20 +231,7 @@ function removeExercise(event) {
 }
 
 function addComment(author, text, date, append) {
-    //TODO: Use <template> instead
-    /* Taken from https://www.bootdey.com/snippets/view/Simple-Comment-panel#css
-                                  <li class="media">
-                                      <div class="media-body">
-                                          <span class="text-muted pull-right">
-                                              <small class="text-muted">30 min ago</small>
-                                          </span>
-                                          <strong class="text-success">MartinoMont</strong>
-                                          <p>
-                                              Lorem ipsum dolor sit amet, consectetur adipiscing elit..
-                                          </p>
-                                      </div>
-                                  </li>
-                                  */
+    /* Taken from https://www.bootdey.com/snippets/view/Simple-Comment-panel#css*/
     let commentList = document.querySelector("#comment-list");
     let listElement = document.createElement("li");
     listElement.className = "media";
@@ -251,7 +241,13 @@ function addComment(author, text, date, append) {
     dateSpan.className = "text-muted pull-right me-1";
     let smallText = document.createElement("small");
     smallText.className = "text-muted";
-    smallText.innerText = `${date.substring(0, 10)} ${date.substring(11, 19)}`;
+
+    if (date != "Now") {
+        let localDate = new Date(date);
+        smallText.innerText = localDate.toLocaleString();
+    } else {
+        smallText.innerText = date;
+    }
 
     dateSpan.appendChild(smallText);
     commentBody.appendChild(dateSpan);

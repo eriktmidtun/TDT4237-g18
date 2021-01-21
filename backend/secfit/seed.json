@@ -1,0 +1,29 @@
+[
+    {
+      "model": "workouts.exercise",
+      "pk": 1,
+      "fields": {
+        "name": "Push-up",
+        "description": "A push-up (or press-up in British English) is a common calisthenics exercise beginning from the prone position.",
+        "unit": "reps"
+      }
+    },
+    {
+      "model": "workouts.exercise",
+      "pk": 2,
+      "fields": {
+        "name": "Crunch",
+        "description": "The crunch is one of the most popular abdominal exercises.",
+        "unit": "reps"
+      }
+    },
+    {
+      "model": "workouts.exercise",
+      "pk": 3,
+      "fields": {
+        "name": "Plank",
+        "description": "The plank is an isometric core strength exercise that involves maintaining a position similar to a push-up for the maximum possible time.",
+        "unit": "seconds"
+      }
+    }
+  ]

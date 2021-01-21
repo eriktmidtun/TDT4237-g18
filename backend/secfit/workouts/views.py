@@ -19,7 +19,7 @@ from workouts.permissions import (
     IsCoachOfWorkoutAndVisibleToCoach,
     IsReadOnly,
     IsPublic,
-    IsWorkoutPublic
+    IsWorkoutPublic,
 )
 from workouts.mixins import CreateListModelMixin
 from workouts.models import Workout, Exercise, ExerciseInstance, WorkoutFile
@@ -33,6 +33,7 @@ import json
 from collections import namedtuple
 import base64, pickle
 from django.core.signing import Signer
+
 
 @api_view(["GET"])
 def api_root(request, format=None):
@@ -52,11 +53,14 @@ def api_root(request, format=None):
         }
     )
 
+
 # Allow users to save a persistent session in their browser
-class RememberMe(mixins.ListModelMixin, 
-                      mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
-                      generics.GenericAPIView):
+class RememberMe(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView,
+):
 
     serializer_class = RememberMeSerializer
 
@@ -64,29 +68,31 @@ class RememberMe(mixins.ListModelMixin,
         if request.user.is_authenticated == False:
             raise PermissionDenied
         else:
-            return Response({
-                'remember_me': self.rememberme()
-            })
+            return Response({"remember_me": self.rememberme()})
 
     def post(self, request):
-        cookieObject = namedtuple('Cookies', request.COOKIES.keys()) (*request.COOKIES.values())
+        cookieObject = namedtuple("Cookies", request.COOKIES.keys())(
+            *request.COOKIES.values()
+        )
         user = self.get_user(cookieObject)
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        })
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
 
     def get_user(self, cookieObject):
         decode = base64.b64decode(cookieObject.remember_me)
         user, sign = pickle.loads(decode)
 
         # Validate signature
-        if(sign == self.sign_user(user)):
+        if sign == self.sign_user(user):
             return user
 
     def rememberme(self):
-        creds = [ self.request.user, self.sign_user(str(self.request.user)) ]
+        creds = [self.request.user, self.sign_user(str(self.request.user))]
         return base64.b64encode(pickle.dumps(creds))
 
     def sign_user(self, username):
@@ -103,11 +109,17 @@ class WorkoutList(
 
     HTTP methods: GET, POST
     """
+
     serializer_class = WorkoutSerializer
-    permission_classes = [permissions.IsAuthenticated]  # User must be authenticated to create/view workouts
-    parser_classes = [MultipartJsonParser, JSONParser]  # For parsing JSON and Multi-part requests
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]  # User must be authenticated to create/view workouts
+    parser_classes = [
+        MultipartJsonParser,
+        JSONParser,
+    ]  # For parsing JSON and Multi-part requests
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['name', 'date', 'owner']
+    ordering_fields = ["name", "date", "owner__username"]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -166,14 +178,15 @@ class WorkoutDetail(
 class ExerciseList(
     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
 ):
-    """Class defining the web response for the creation of an Exercise, or 
+    """Class defining the web response for the creation of an Exercise, or
     a list of Exercises.
 
     HTTP methods: GET, POST
     """
+
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
-    permission_classes = [permissions.IsAuthenticated]    
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -192,6 +205,7 @@ class ExerciseDetail(
 
     HTTP methods: GET, PUT, PATCH, DELETE
     """
+
     queryset = Exercise.objects.all()
     serializer_class = ExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -215,8 +229,8 @@ class ExerciseInstanceList(
     CreateListModelMixin,
     generics.GenericAPIView,
 ):
-    """Class defining the web response for the creation 
-    """
+    """Class defining the web response for the creation"""
+
     serializer_class = ExerciseInstanceSerializer
     permission_classes = [permissions.IsAuthenticated & IsOwnerOfWorkout]
 
@@ -249,7 +263,10 @@ class ExerciseInstanceDetail(
     serializer_class = ExerciseInstanceSerializer
     permission_classes = [
         permissions.IsAuthenticated
-        & (IsOwnerOfWorkout | (IsReadOnly & (IsCoachOfWorkoutAndVisibleToCoach | IsWorkoutPublic)))
+        & (
+            IsOwnerOfWorkout
+            | (IsReadOnly & (IsCoachOfWorkoutAndVisibleToCoach | IsWorkoutPublic))
+        )
     ]
 
     def get(self, request, *args, **kwargs):

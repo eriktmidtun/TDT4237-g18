@@ -51,6 +51,12 @@ async function displayOffers() {
 
             listOffers.appendChild(li);
         }
+        if (offers.results.length == 0) {
+            let offersDiv = document.querySelector("#offers-div");
+            let p = document.createElement("p");
+            p.innerText = "You currently have no offers.";
+            offersDiv.append(p);
+        }
     }
 }
 
@@ -139,6 +145,12 @@ async function displayFiles() {
 
     if (listTab.childElementCount > 0) {
         listTab.firstElementChild.click();
+    }
+
+    if (user.coach_files.length == 0) {
+        let p = document.createElement("p");
+        p.innerText = "There are currently no files uploaded for this user.";
+        document.querySelector("#list-files-div").append(p);
     }
 }
 
