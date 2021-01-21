@@ -1,4 +1,3 @@
-//TODO: Globals are bad! Fix this
 let cancelWorkoutButton;
 let okWorkoutButton;
 let deleteWorkoutButton;
@@ -22,8 +21,10 @@ async function retrieveWorkout(id) {
             let input = form.querySelector(selector);
             let newVal = workoutData[key];
             if (key == "date") {
-                // Removing Z
-                newVal = newVal.substring(0, newVal.length - 1);
+                // Creating a valid datetime-local string with the correct local time
+                let date = new Date(newVal);
+                date = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000)).toISOString(); // get ISO format for local time
+                newVal = date.substring(0, newVal.length - 1);    // remove Z (since this is a local time, not UTC)
             }
             if (key != "files") {
                 input.value = newVal;
@@ -154,7 +155,8 @@ function generateWorkoutForm() {
     let submitForm = new FormData();
 
     submitForm.append("name", formData.get('name'));
-    submitForm.append("date", formData.get('date'));
+    let date = new Date(formData.get('date')).toISOString();
+    submitForm.append("date", date);
     submitForm.append("notes", formData.get("notes"));
     submitForm.append("visibility", formData.get("visibility"));
 
