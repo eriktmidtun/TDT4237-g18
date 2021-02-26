@@ -1,0 +1,1 @@
+web: cd frontend && cordova run browser --release --port=$PORT
