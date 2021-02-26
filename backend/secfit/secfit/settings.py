@@ -103,6 +103,15 @@ DATABASES = {
     }
 }
 
+is_prod = os.environ.get("IS_HEROKU", None)
+
+if is_prod:
+
+    import django_heroku
+
+    django_heroku.settings(locals())
+
+
 # CORS Policy
 CORS_ORIGIN_ALLOW_ALL = (
     True

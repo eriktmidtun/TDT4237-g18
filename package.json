@@ -1,0 +1,14 @@
+{
+    "name": "secfit",
+    "description": "Secure Fitness",
+    "version": "0.0.1",
+    "engines": {
+      "node": "12.x"
+    },
+    "dependencies": {
+        "cordova": "10.0.0",
+        "cordova-browser": "6.0.0",
+        "cordova-plugin-whitelist": "^1.3.4"
+    }
+  }
+
