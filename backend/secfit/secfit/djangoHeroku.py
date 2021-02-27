@@ -40,7 +40,7 @@ def settings(config, *, db_colors=False, databases=True, test_runner=True, stati
             if 'CI' in os.environ:
                 config['DATABASES']['default']['TEST'] = config['DATABASES']['default']
 
-        else:
+        #else:
             #logger.info('$DATABASE_URL not found, falling back to previous settings!')
 
     if test_runner:
