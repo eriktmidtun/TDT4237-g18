@@ -126,3 +126,44 @@ If you want to run this as a mobile application
 It's possible you will need to add the platforms you want to run and build.
 The following documentation can be used to run the application in an Android emulator: \
 https://cordova.apache.org/docs/en/latest/guide/platforms/android/index.html
+
+## Continuous integration
+WARNING: Do not perform penetration testing on Heroku applications
+
+Continuous integration will build the code pushed to master and push it to your heroku app so you get a live version of your latest code by just pushing your code to GitLab.
+
+1. Fork the project at GitLab
+2. Create a heroku account and an app for both the frontend and the backend.
+3. Select buildpacks for the two apps. The backend uses Python while the frontend uses node.js.
+   * Settings > Buildpacks > Add buildpack
+3. Set the project in the .gitlab-cs.yml file by replacing `<Your-herokuproject-name>` with the name of the Heroku app you created
+`- dpl --provider=heroku --app=<Your-herokuproject-name> --api-key=$HEROKU_STAGING_API_KEY`
+4. Set varibles at GitLab
+   * settings > ci > Environment Variables
+   * `HEROKU_STAGING_API_KEY` = heroku > Account Settings > API Key
+5. Add heroku database for the backend
+   * Resources > Add ons > search for postgres > add first option
+6. Set variables for the backend on Heroku. Settings > Config vars > Reveal vars
+   * `DATABASE_URL` = Should be set by default. If not here is where you can find it: Resources > postgress > settings > view credentials > URI
+   * `IS_HEROKU` = `IS_HEROKU`
+   * `PROCFILE` = `backend/secfit/Procfile`
+6. Set variables for the frontend on heroku. Settings > Config vars > Reveal vars
+   * `BACKEND_HOST` = `http://secfit-backend.herokuapp.com`
+   * `PROCFILE` = `frontend/Procfile`
+6. On GitLab go to CI / CD in the repository menu and select `Run Pipeline` if it has not already started. When both stages complete the app should be available on heroku. Staging will fail from timeout as Heroku does not give the propper response to end the job. But the log should state that the app was deployed.
+7. Setup the applications database.
+  * Install heroku CLI by following: https://devcenter.heroku.com/articles/heroku-cli
+  * Log in to the Heroku CLI by entering `heroku login`. This opens a webbrowser and you accept the login request.
+  * Migrate database by entering
+  `heroku run python manage.py migrate -a <heroku-app-name>`. `Heroku run` will run the folowing command on your heroku instance. Remember to replace `<heroku-app-name>` with your app name
+  * and create an admin account by running
+  `heroku run python manage.py createsuperuser -a <heroku-app-name>`.
+  * seed database `heroku run python manage.py loaddata seed.json -a <heroku-app-name>`
+8. On the frontend app, add a config variable for `BACKEND_HOST` = `BACKEND_HOST`
+
+You will also need the heroku multi-procfile buildpack: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile.
+In general, for this application to work (beyond locally), you will need to set the BACKEND_HOST to the URL of the REST API backend.
+
+### Reset Database
+`heroku pg:reset DATABASE_URL -a <heroku-app-name>`
+
