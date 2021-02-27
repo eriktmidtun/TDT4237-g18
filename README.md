@@ -160,7 +160,7 @@ Continuous integration will build the code pushed to master and push it to your 
    * Migrate database by entering
    `heroku run python backend/secfit/manage.py migrate -a <heroku-app-name>`. `Heroku run` will run the folowing command on your heroku instance. Remember to replace `<heroku-app-name>` with your app name
    * and create an admin account by running
-   `heroku run python manage.py createsuperuser -a <heroku-app-name>`.
+   `heroku run python backend/secfit/manage.py createsuperuser -a <heroku-app-name>`.
    * seed database `heroku run python backend/secfit/manage.py loaddata seed.json -a <heroku-app-name>`
 12. On the frontend app, add a config variable for `BACKEND_HOST` = `BACKEND_HOST`
 
