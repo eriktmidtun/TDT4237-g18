@@ -158,10 +158,10 @@ Continuous integration will build the code pushed to master and push it to your 
    * Install heroku CLI by following: https://devcenter.heroku.com/articles/heroku-cli
    * Log in to the Heroku CLI by entering `heroku login`. This opens a webbrowser and you accept the login request.
    * Migrate database by entering
-   `heroku run python manage.py migrate -a <heroku-app-name>`. `Heroku run` will run the folowing command on your heroku instance. Remember to replace `<heroku-app-name>` with your app name
+   `heroku run python backend/secfit/manage.py migrate -a <heroku-app-name>`. `Heroku run` will run the folowing command on your heroku instance. Remember to replace `<heroku-app-name>` with your app name
    * and create an admin account by running
    `heroku run python manage.py createsuperuser -a <heroku-app-name>`.
-   * seed database `heroku run python manage.py loaddata seed.json -a <heroku-app-name>`
+   * seed database `heroku run python backend/secfit/manage.py loaddata seed.json -a <heroku-app-name>`
 12. On the frontend app, add a config variable for `BACKEND_HOST` = `BACKEND_HOST`
 
 You will also need the heroku multi-procfile buildpack: https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile.
