@@ -151,10 +151,8 @@ Continuous integration will build the code pushed to master and push it to your 
    * `BACKEND_HOST` = `http://<SECFIT_BACKEND>.herokuapp.com`
    * `PROCFILE` = `frontend/Procfile`
 9. Push the repository to both of the heroku applications https://devcenter.heroku.com/articles/git 
-   * heroku git:remote -a `<your backend app>`
-   * git push heroku master
-   * heroku git:remote -a `<your frontent app>`
-   * git push heroku master
+   * git push git push `<backend-repository>` HEAD:master
+   * git push git push `<frontend-repository>` HEAD:master
 10. On GitLab go to CI / CD in the repository menu and select `Run Pipeline` if it has not already started. When both stages complete the app should be available on heroku. Staging will fail from timeout as Heroku does not give the propper response to end the job. But the log should state that the app was deployed.
 11. Setup the applications database.
    * Install heroku CLI by following: https://devcenter.heroku.com/articles/heroku-cli
