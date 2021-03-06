@@ -144,4 +144,5 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = "users.User"
 
-DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv('DEBUG', False)
