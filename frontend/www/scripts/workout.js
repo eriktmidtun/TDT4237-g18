@@ -257,7 +257,7 @@ function addComment(author, text, date, append) {
     strong.innerText = author;
     commentBody.appendChild(strong);
     let p = document.createElement("p");
-    p.innerHTML = text;
+    p.innerText = text;
 
     commentBody.appendChild(strong);
     commentBody.appendChild(p);
