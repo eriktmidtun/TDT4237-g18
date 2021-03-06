@@ -53,7 +53,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     } 
 
     let currentSort = document.querySelector("#current-sort");
-    currentSort.innerHTML = (ordering.startsWith("-") ? "Descending" : "Ascending") + " " + ordering.replace("-", "");
+    currentSort.innerText = (ordering.startsWith("-") ? "Descending" : "Ascending") + " " + ordering.replace("-", "");
 
     let currentUser = await getCurrentUser();
     // grab username
