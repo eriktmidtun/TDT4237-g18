@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
+from .validators import PDFValidator
 
 
 # Create your models here.
@@ -38,7 +39,7 @@ class AthleteFile(models.Model):
     owner = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="athlete_files"
     )
-    file = models.FileField(upload_to=athlete_directory_path)
+    file = models.FileField(upload_to=athlete_directory_path, validators=[PDFValidator])
 
 
 class Offer(models.Model):

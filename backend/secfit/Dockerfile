@@ -18,6 +18,9 @@ COPY . /code/
 # Add sqlite3 to enable dbshell command for managing the database
 RUN apt-get update -y && apt-get install sqlite3 -y
 
+# for file validation
+RUN apt-get install libmagic1 -y 
+
 # Upgrade pip
 RUN pip install --upgrade pip
 
