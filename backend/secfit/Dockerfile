@@ -18,6 +18,9 @@ COPY . /code/
 # Add sqlite3 to enable dbshell command for managing the database
 RUN apt-get update -y && apt-get install sqlite3 -y
 
+# for file validation
+RUN apt-get install libmagic1 -y 
+
 # Upgrade pip
 RUN pip install --upgrade pip
 
@@ -34,6 +37,8 @@ RUN python manage.py migrate
 ARG DJANGO_SUPERUSER_USERNAME
 ARG DJANGO_SUPERUSER_PASSWORD
 ARG DJANGO_SUPERUSER_EMAIL
+
+RUN python manage.py collectstatic --noinput
 
 # Create superuser
 RUN DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME} \

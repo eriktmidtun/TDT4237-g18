@@ -7,6 +7,7 @@ from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from .validators import ImageValidator
 
 
 class OverwriteStorage(FileSystemStorage):
@@ -137,7 +138,7 @@ class WorkoutFile(models.Model):
     owner = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="workout_files"
     )
-    file = models.FileField(upload_to=workout_directory_path)
+    file = models.FileField(upload_to=workout_directory_path, validators=[ImageValidator])
 
 
 class RememberMe(models.Model):

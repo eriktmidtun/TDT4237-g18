@@ -24,7 +24,8 @@ async function login() {
         let response = await sendRequest("GET", `${HOST}/api/remember_me/`);
         if(response.ok) {
             let data = await response.json();
-            setCookie("remember_me", data.remember_me, 3000000000, "/");
+            // Remember_me lasts for 30 days
+            setCookie("remember_me", data.remember_me, 2592000, "/");
         }
     }
 };
