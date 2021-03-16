@@ -6,4 +6,5 @@ ENV GROUPID=${GROUPID}
 ENV PORT_PREFIX=${PORT_PREFIX}
 
 # Copy nginx config to the container
+COPY /TLS /etc/nginx
 COPY nginx.conf /etc/nginx/nginx.conf

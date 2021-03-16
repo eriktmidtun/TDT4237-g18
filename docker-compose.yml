@@ -36,7 +36,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - ${PORT_PREFIX}${GROUPID}:80
+      - ${PORT_PREFIX}${GROUPID}:443
     environment: 
       - GROUPID=${GROUPID}
       - PORT_PREFIX=${PORT_PREFIX}
