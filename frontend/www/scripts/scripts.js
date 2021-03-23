@@ -143,6 +143,21 @@ async function getCurrentUser() {
   } else {
       let data = await response.json();
       user = data.results[0];
+
+      // This code block fixes some CORS issues when enabling HTTPS
+      let host = `${HOST}`;
+      if(host.includes('https')){
+        user.url = ('https' + user.url.substring(4))
+        if(user.coach){
+          user.coach = ('https' + user.coach.substring(4))
+        }
+        if(user.athletes.length > 0){
+          for(let i = 0; i < user.athletes.length, i++;){
+            user.athletes[i] = ('https' + user.athletes[i].substring(4))
+          }
+        }
+      }
+
   }
 
   return user;
