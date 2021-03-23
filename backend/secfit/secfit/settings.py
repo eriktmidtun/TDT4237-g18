@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from .djangoHeroku import settings
 
 
 # Get the GROUPID variable to accept connections from the application server and NGINX
@@ -106,10 +107,7 @@ DATABASES = {
 is_prod = os.environ.get("IS_HEROKU", None)
 
 if is_prod:
-
-    import django_heroku
-
-    django_heroku.settings(locals())
+    settings(locals())
 
 
 # CORS Policy

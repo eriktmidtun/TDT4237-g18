@@ -18,10 +18,8 @@ staging:
     - apt-get update -qy
     - apt-get install -y ruby-dev
     - gem install dpl
-    - apt-get install python3-pip -y	
-    - pip3 install -r requirements.txt
-    - dpl --provider=heroku --app=secfit123-backend --api-key=$HEROKU_STAGING_API_KEY
-    - dpl --provider=heroku --app=secfit123 --api-key=$HEROKU_STAGING_API_KEY
+    - dpl --provider=heroku --app=secfit-backe --api-key=$HEROKU_STAGING_API_KEY
+    - dpl --provider=heroku --app=secfit-front --api-key=$HEROKU_STAGING_API_KEY
   only:
     - master
 

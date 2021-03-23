@@ -170,6 +170,7 @@ class WorkoutSerializer(serializers.HyperlinkedModelSerializer):
 
             for file, file_data in zip(files.all(), files_data):
                 file.file = file_data.get("file", file.file)
+                file.save()
 
             # If new files have been added, creating new WorkoutFiles
             if len(files_data) > len(files.all()):
