@@ -257,7 +257,7 @@ function addComment(author, text, date, append) {
     strong.innerText = author;
     commentBody.appendChild(strong);
     let p = document.createElement("p");
-    p.innerText = text;
+    p.innerHTML = text;
 
     commentBody.appendChild(strong);
     commentBody.appendChild(p);
@@ -278,7 +278,7 @@ async function createComment(workoutid) {
 
     let response = await sendRequest("POST", `${HOST}/api/comments/`, body);
     if (response.ok) {
-        addComment(sessionStorage.getItem("username"), content, "Now", false);
+        addComment(sessionStorage.getItem("username"), htmlEntities(content), "Now", false);
     } else {
         let data = await response.json();
         let alert = createAlert("Failed to create comment!", data);
