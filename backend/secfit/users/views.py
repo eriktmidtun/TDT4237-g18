@@ -20,7 +20,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
-from users.permissions import IsCurrentUser, IsAthlete, IsCoach
+from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient
 from workouts.permissions import IsOwner, IsReadOnly
 
 # Create your views here.
@@ -125,12 +125,11 @@ class OfferDetail(
     mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
-    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
     def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+        return self.retrieve(request, *args, **kwargs)      
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -140,6 +139,15 @@ class OfferDetail(
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            return [permissions.IsAuthenticated(), IsOfferOwnerOrRecipient()]
+        if self.request.method in ['PUT', 'PATCH']:
+            return [permissions.IsAuthenticated(), IsOfferRecipient()]
+        if self.request.method in ['DELETE']:
+            return [permissions.IsAuthenticated(), IsOfferOwner()]
+        return []
 
 
 class AthleteFileList(
