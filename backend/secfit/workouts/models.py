@@ -139,16 +139,3 @@ class WorkoutFile(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name="workout_files"
     )
     file = models.FileField(upload_to=workout_directory_path, validators=[ImageValidator])
-
-
-class RememberMe(models.Model):
-    """Django model for an remember_me cookie used for remember me functionality.
-
-    Attributes:
-        remember_me:        Value of cookie used for remember me
-    """
-
-    remember_me = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.remember_me
