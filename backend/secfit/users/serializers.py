@@ -1,9 +1,11 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from django.contrib.auth import get_user_model, password_validation
-from users.models import Offer, AthleteFile
+from users.models import Offer, AthleteFile, RememberMe, User
 from django import forms
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from .util import send_email_verification_mail
 from django.core.validators import validate_email
-
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(style={"input_type": "password"}, write_only=True)
@@ -116,3 +118,54 @@ class OfferSerializer(serializers.HyperlinkedModelSerializer):
             "status",
             "timestamp",
         ]
+
+class LoginSerializer(TokenObtainSerializer):
+    """
+    Serializer for LoginView. Extends simplejwt's TokenObtainSerializer serializer
+    """
+
+    default_error_messages = {
+        'no_active_account': 'No active account found with the given credentials',
+        'account_not_verified': 'This account is not verified. A new verification email has been sent.'
+    }
+
+    @classmethod
+    def get_token(cls, user):
+        return RefreshToken.for_user(user)
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.is_verified:
+            send_email_verification_mail(self.user, self.context['request'])
+            raise exceptions.AuthenticationFailed(
+                self.error_messages['account_not_verified'],
+                'account_not_verified',
+            )
+
+        refresh = self.get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        return data
+
+class RememberMeSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializer for an RememberMe. Hyperlinks are used for relationships by default.
+
+    Serialized fields: remember_me
+
+    Attributes:
+        remember_me:    Value of cookie used for remember me functionality
+    """
+
+    class Meta:
+        model = RememberMe
+        fields = ["remember_me"]
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ['token']

@@ -1,13 +1,20 @@
 import django
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, status
 from workouts.mixins import CreateListModelMixin
 from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenViewBase
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from users.serializers import (
     UserSerializer,
     OfferSerializer,
     AthleteFileSerializer,
     UserPutSerializer,
     UserGetSerializer,
+    RememberMeSerializer,
+    LoginSerializer,
+    EmailVerificationSerializer,
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -19,12 +26,18 @@ from users.models import Offer, AthleteFile
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
 from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient
 from workouts.permissions import IsOwner, IsReadOnly
+import json
+from collections import namedtuple
+import base64, pickle
+from django.core.signing import Signer
+from .util import send_email_verification_mail, EmailVerificationToken
 
 # Create your views here.
-class UserList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class UserList(mixins.ListModelMixin, generics.GenericAPIView):
     serializer_class = UserSerializer
 
     def get(self, request, *args, **kwargs):
@@ -32,7 +45,13 @@ class UserList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericA
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user_data=serializer.data
+        user = get_user_model().objects.get(username=user_data['username'])
+        send_email_verification_mail(user, request)
+        return Response(user_data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         qs = get_user_model().objects.all()
@@ -196,3 +215,75 @@ class AthleteFileDetail(
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+# Allow users to save a persistent session in their browser
+class RememberMe(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView,
+):
+
+    serializer_class = RememberMeSerializer
+
+    def get(self, request):
+        if request.user.is_authenticated == False:
+            raise PermissionDenied
+        else:
+            return Response({"remember_me": self.rememberme()})
+
+    def post(self, request):
+        cookieObject = namedtuple("Cookies", request.COOKIES.keys())(
+            *request.COOKIES.values()
+        )
+        user = self.get_user(cookieObject)
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
+
+    def get_user(self, cookieObject):
+        decode = base64.b64decode(cookieObject.remember_me)
+        user, sign = pickle.loads(decode)
+
+        # Validate signature
+        if sign == self.sign_user(user):
+            return user
+
+    def rememberme(self):
+        creds = [self.request.user, self.sign_user(str(self.request.user))]
+        return base64.b64encode(pickle.dumps(creds))
+
+    def sign_user(self, username):
+        signer = Signer()
+        signed_user = signer.sign(username)
+        return signed_user
+
+class LoginView(TokenViewBase):
+    """
+    Takes a set of user credentials and returns an access and refresh JSON web
+    token pair to prove the authentication of those credentials.
+    """
+    serializer_class = LoginSerializer
+
+
+class VerifyEmail(generics.GenericAPIView):
+
+    serializer_class = EmailVerificationSerializer
+
+    def get(self, request):
+        parsedToken = request.GET.get('token')
+        try:
+            token = EmailVerificationToken(parsedToken)
+            user_id = token.get('user_id')
+            user= get_user_model().objects.get(pk=user_id)
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+                token.blacklist()
+            return Response({'success': ['Successfully activated']}, status=status.HTTP_200_OK)
+        except TokenError as identifier:
+            return Response({'error': ['Token invalid or expired']}, status=status.HTTP_400_BAD_REQUEST)
