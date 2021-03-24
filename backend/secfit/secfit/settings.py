@@ -115,6 +115,36 @@ CORS_ORIGIN_ALLOW_ALL = (
     True
 )
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 8,
+        },
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "users.validators.NumberValidator",
+        "OPTIONS": {
+            "min_digits": 1,
+        },
+    },
+    {
+        "NAME": "users.validators.UppercaseValidator",
+    },
+    {
+        "NAME": "users.validators.LowercaseValidator",
+    },
+    {
+        "NAME": "users.validators.SymbolValidator",
+    },
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 

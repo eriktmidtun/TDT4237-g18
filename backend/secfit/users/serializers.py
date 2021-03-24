@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, password_validation
 from users.models import Offer, AthleteFile
 from django import forms
+from django.core.validators import validate_email
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,6 +24,18 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "coach_files",
             "athlete_files",
         ]
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+        except forms.ValidationError as error:
+            raise serializers.ValidationError(error.messages)
+        return value
+
+    def validate_username(self, value, MIN_LENGTH = 4):
+        username = value
+        if len(username) < MIN_LENGTH:
+            raise serializers.ValidationError("Username must be at least {} characters".format(MIN_LENGTH))
+        return value
 
     def validate_password(self, value):
         data = self.get_initial()
