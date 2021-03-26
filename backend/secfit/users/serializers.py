@@ -44,9 +44,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         password = data.get("password")
         password1 = data.get("password1")
-
+        email = data.get("email")
+        username = data.get("username")
         try:
-            password_validation.validate_password(password)
+            user_obj = get_user_model()(username=username, email=email)
+            password_validation.validate_password(password, user_obj)
         except forms.ValidationError as error:
             raise serializers.ValidationError(error.messages)
 
