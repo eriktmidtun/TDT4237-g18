@@ -15,6 +15,8 @@ from users.serializers import (
     RememberMeSerializer,
     LoginSerializer,
     EmailVerificationSerializer,
+    ResetPasswordEmailRequestSerializer,
+    SetNewPasswordSerializer,
     LoginWithTOTPSerializer,
 )
 from rest_framework.permissions import (
@@ -37,7 +39,8 @@ from collections import namedtuple
 import base64
 import pickle
 from django.core.signing import Signer
-from .util import send_email_verification_mail, EmailVerificationToken, generateTwoFactorURI, generateQrCode, generateSecret
+from .util import send_email_verification_mail, send_reset_password_mail, EmailVerificationToken,  generateTwoFactorURI, generateQrCode, generateSecret
+from threading import Thread
 import pyotp
 from django.http import FileResponse, Http404
 
@@ -312,6 +315,34 @@ class LoginView(TokenViewBase):
     token pair to prove the authentication of those credentials.
     """
     serializer_class = LoginSerializer
+
+
+class SetNewPassword(generics.GenericAPIView):
+
+    serializer_class = SetNewPasswordSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'success': 'You have set your new password'}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordEmailRequest(generics.GenericAPIView):
+
+    serializer_class = ResetPasswordEmailRequestSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = request.data.get('email', '')
+        self.__send_mail_if_exists(email, request)
+        return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
+
+    def __send_mail_if_exists(self, email, request):
+        if get_user_model().objects.filter(email=email).exists():
+            user = get_user_model().objects.get(email=email)
+            if user.is_verified:
+                send_reset_password_mail(user, request)
 
 
 class VerifyEmail(generics.GenericAPIView):

@@ -4,10 +4,12 @@ from users.models import Offer, AthleteFile, RememberMe, User
 from django import forms
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .util import send_email_verification_mail, TOTPVerificationToken
+from rest_framework_simplejwt.exceptions import TokenError
+from .util import send_email_verification_mail, TOTPVerificationToken, ResetPasswordToken
 from django.core.validators import validate_email
 import pyotp
 from rest_framework_simplejwt.exceptions import TokenError
+
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -167,7 +169,6 @@ class LoginSerializer(TokenObtainSerializer):
 
         return data
 
-
 class LoginWithTOTPSerializer(serializers.Serializer):
     totp_code = serializers.CharField(max_length=6)
     totp_token = serializers.CharField(max_length=555)
@@ -225,3 +226,51 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['token']
+
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=555)
+    password = serializers.CharField(
+        style={"input_type": "password"}, write_only=True)
+    password1 = serializers.CharField(
+        style={"input_type": "password"}, write_only=True)
+    
+    def validate(self, attrs):
+
+        password = attrs.get("password")
+        password1 = attrs.get("password1")
+        tokenString = attrs.get("token")
+        try:
+            token = ResetPasswordToken(tokenString)
+            user_id = token.get('user_id')
+            if not get_user_model().objects.filter(pk=user_id).exists():
+                raise serializers.ValidationError("Token invalid or expired!")
+        except TokenError as identifier:
+            raise serializers.ValidationError("Token invalid or expired!")
+
+        user = get_user_model().objects.get(pk=user_id)
+        try:
+            password_validation.validate_password(password, user=user)
+        except forms.ValidationError as error:
+            raise serializers.ValidationError(error.messages)
+
+        if password != password1:
+            raise serializers.ValidationError("Passwords must match!")
+
+        user.set_password(password)
+        user.save()
+        token.blacklist()
+        return super().validate(attrs)
+
+class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=2)
+
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+        except forms.ValidationError as error:
+            raise serializers.ValidationError(error.messages)
+        return value
+
+    class Meta:
+        fields = ["email"]
