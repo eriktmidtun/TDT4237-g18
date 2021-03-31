@@ -15,6 +15,7 @@ from users.serializers import (
     RememberMeSerializer,
     LoginSerializer,
     EmailVerificationSerializer,
+    LoginWithTOTPSerializer,
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -29,16 +30,20 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
-from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient
+from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient, TwoFactorNotEnabled
 from workouts.permissions import IsOwner, IsReadOnly
 import json
 from collections import namedtuple
-import base64, pickle
+import base64
+import pickle
 from django.core.signing import Signer
-from .util import send_email_verification_mail, EmailVerificationToken
+from .util import send_email_verification_mail, EmailVerificationToken, generateTwoFactorURI, generateQrCode, generateSecret
+import pyotp
 from django.http import FileResponse, Http404
 
 # Create your views here.
+
+
 class UserList(mixins.ListModelMixin, generics.GenericAPIView):
     serializer_class = UserSerializer
 
@@ -47,10 +52,11 @@ class UserList(mixins.ListModelMixin, generics.GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        user_data=serializer.data
+        user_data = serializer.data
         user = get_user_model().objects.get(username=user_data['username'])
         send_email_verification_mail(user, request)
         return Response(user_data, status=status.HTTP_201_CREATED)
@@ -76,7 +82,8 @@ class UserDetail(
     lookup_field_options = ["pk", "username"]
     serializer_class = UserSerializer
     queryset = get_user_model().objects.all()
-    permission_classes = [permissions.IsAuthenticated & (IsCurrentUser | IsReadOnly)]
+    permission_classes = [permissions.IsAuthenticated &
+                          (IsCurrentUser | IsReadOnly)]
 
     def get_object(self):
         for field in self.lookup_field_options:
@@ -150,7 +157,7 @@ class OfferDetail(
     serializer_class = OfferSerializer
 
     def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)      
+        return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -250,6 +257,8 @@ class AthleteFileResponse(
         return obj
 
 # Allow users to save a persistent session in their browser
+
+
 class RememberMe(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -295,6 +304,7 @@ class RememberMe(
         signed_user = signer.sign(username)
         return signed_user
 
+
 class LoginView(TokenViewBase):
     """
     Takes a set of user credentials and returns an access and refresh JSON web
@@ -312,7 +322,7 @@ class VerifyEmail(generics.GenericAPIView):
         try:
             token = EmailVerificationToken(parsedToken)
             user_id = token.get('user_id')
-            user= get_user_model().objects.get(pk=user_id)
+            user = get_user_model().objects.get(pk=user_id)
             if not user.is_verified:
                 user.is_verified = True
                 user.save()
@@ -320,3 +330,64 @@ class VerifyEmail(generics.GenericAPIView):
             return Response({'success': ['Successfully activated']}, status=status.HTTP_200_OK)
         except TokenError as identifier:
             return Response({'error': ['Token invalid or expired']}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TotpURI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    # Generate URI used in QR for registering 2FA.
+    # Save generated secret to for forther use. But secret not yet verified
+    def get(self, request):
+        user_id = request.user.pk
+        user = get_user_model().objects.get(pk=user_id)
+        secret = generateSecret()
+        # If user has not set secret, set new secret
+        if user.secret2fa is None:
+            user.secret2fa = secret
+            user.save()
+        # If user already has secret, display existing secret
+        else:
+            secret = user.secret2fa
+        return Response(generateTwoFactorURI(request.user, secret))
+
+
+class EnableTwoFactor(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    # Accept user input: 6 digit token
+    # Check if TOTP-token is correct
+    # Return "Success" or "Wrong token"
+
+    def post(self, request):
+        # Get unverified secret from user
+        user_id = request.user.pk
+        user = get_user_model().objects.get(pk=user_id)
+        secret = user.secret2fa
+        # Set up reference to pyotp
+        totp = pyotp.TOTP(secret)
+        totp_code = request.data.get("totp_code")
+
+        # Check if user inputed token is correct
+        if (totp.verify(totp_code)):
+            # Verify secret to user object
+            try:
+                user.is_verified_2fa = True
+                user.save()
+                return Response({'success': ['Successfully activated']}, status=status.HTTP_200_OK)
+            except:
+                return Response({'error': ['An error occured']}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': ['Token invalid or expired']}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginWithTOTP(generics.GenericAPIView):
+    # Check if TOTPVerificationToken is valid
+    # Accept user input: 6 digit token
+    # Check if TOTP-token is correct
+    # Return "Success" or "Wrong code"
+
+    serializer_class = LoginWithTOTPSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)

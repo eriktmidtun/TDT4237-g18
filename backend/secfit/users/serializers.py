@@ -4,12 +4,17 @@ from users.models import Offer, AthleteFile, RememberMe, User
 from django import forms
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .util import send_email_verification_mail
+from .util import send_email_verification_mail, TOTPVerificationToken
 from django.core.validators import validate_email
+import pyotp
+from rest_framework_simplejwt.exceptions import TokenError
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    password = serializers.CharField(style={"input_type": "password"}, write_only=True)
-    password1 = serializers.CharField(style={"input_type": "password"}, write_only=True)
+    password = serializers.CharField(
+        style={"input_type": "password"}, write_only=True)
+    password1 = serializers.CharField(
+        style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = get_user_model()
@@ -26,6 +31,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "coach_files",
             "athlete_files",
         ]
+
     def validate_email(self, value):
         try:
             validate_email(value)
@@ -33,10 +39,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError(error.messages)
         return value
 
-    def validate_username(self, value, MIN_LENGTH = 4):
+    def validate_username(self, value, MIN_LENGTH=4):
         username = value
         if len(username) < MIN_LENGTH:
-            raise serializers.ValidationError("Username must be at least {} characters".format(MIN_LENGTH))
+            raise serializers.ValidationError(
+                "Username must be at least {} characters".format(MIN_LENGTH))
         return value
 
     def validate_password(self, value):
@@ -121,6 +128,7 @@ class OfferSerializer(serializers.HyperlinkedModelSerializer):
             "timestamp",
         ]
 
+
 class LoginSerializer(TokenObtainSerializer):
     """
     Serializer for LoginView. Extends simplejwt's TokenObtainSerializer serializer
@@ -145,12 +153,57 @@ class LoginSerializer(TokenObtainSerializer):
                 'account_not_verified',
             )
 
-        refresh = self.get_token(self.user)
+        # User with 2fa must also verify TOTP
+        if self.user.is_verified_2fa:
+            # Send TOTP verification token used to access verifying TOTP
+            totp_token = TOTPVerificationToken.for_user(self.user)
+            data['totp_token'] = str(totp_token)
+            return data
 
+        # Set authentication tokens used to access app
+        refresh = self.get_token(self.user)
         data['refresh'] = str(refresh)
         data['access'] = str(refresh.access_token)
 
         return data
+
+
+class LoginWithTOTPSerializer(serializers.Serializer):
+    totp_code = serializers.CharField(max_length=6)
+    totp_token = serializers.CharField(max_length=555)
+
+    def validate(self, attrs):
+        # User inputed TOTP
+        totp_code = attrs.get('totp_code')
+        # Token for verifying successful login
+        totp_token = attrs.get('totp_token')
+        try:
+            # Check if totp_token is valid and
+            # ... decrypt it. Then set it to variable totp_token
+            totp_token_JWT = TOTPVerificationToken(totp_token)
+        except TokenError as error:
+            raise serializers.ValidationError(
+                {"token": "Token invalid or expired. Try logging in again"})
+
+        # Get secret from user object
+        user_id = totp_token_JWT.get('user_id')
+        user = get_user_model().objects.get(pk=user_id)
+        secret = user.secret2fa
+        # Set up totp with users' secret and
+        # ... check if inputed token is correct
+        totp = pyotp.TOTP(secret)
+        if not totp.verify(totp_code):
+            raise serializers.ValidationError({"code": "Invalid Code"})
+
+        totp_token_JWT.blacklist()
+        # Return authentication tokens used to access app
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+        return data
+
 
 class RememberMeSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for an RememberMe. Hyperlinks are used for relationships by default.
@@ -164,6 +217,7 @@ class RememberMeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = RememberMe
         fields = ["remember_me"]
+
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)
