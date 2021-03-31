@@ -30,7 +30,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
-from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient, TwoFactorNotEnabled
+from users.permissions import IsCurrentUser, IsAthlete, IsCoach, IsPostOrIsAuthenticated, IsOfferOwnerOrRecipient, IsOfferOwner, IsOfferRecipient, TwoFactorNotEnabled
 from workouts.permissions import IsOwner, IsReadOnly
 import json
 from collections import namedtuple
@@ -46,6 +46,7 @@ from django.http import FileResponse, Http404
 
 class UserList(mixins.ListModelMixin, generics.GenericAPIView):
     serializer_class = UserSerializer
+    permission_classes = [IsPostOrIsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         self.serializer_class = UserGetSerializer
@@ -62,7 +63,7 @@ class UserList(mixins.ListModelMixin, generics.GenericAPIView):
         return Response(user_data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
-        qs = get_user_model().objects.all()
+        qs = get_user_model().objects.none()
 
         if self.request.user:
             # Return the currently logged in user
