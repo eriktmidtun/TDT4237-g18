@@ -80,7 +80,7 @@ async function displayFiles() {
         } 
 
         let divFiles = tabPanel.querySelector(".uploaded-files");
-        let aFile = createFileLink(templateFile, file.file);
+        let aFile = await createFileLink(templateFile, file.file);
 
         divFiles.appendChild(aFile);
     }
@@ -127,13 +127,17 @@ function createTabContents(templateAthlete, athlete, listTab, templateFiles, nav
     return tabPanel;
 }
 
-function createFileLink(templateFile, fileUrl) {
-    let cloneFile = templateFile.content.cloneNode(true);
-    let aFile = cloneFile.querySelector("a");
-    aFile.href = fileUrl;
-    let pathArray = fileUrl.split("/");
-    aFile.text = pathArray[pathArray.length - 1];
-    return aFile;
+async function createFileLink(templateFile, fileUrl) {
+    const resp = await sendRequest('GET', fileUrl);
+    const blob = await resp.blob();
+    const cloneFile = templateFile.content.cloneNode(true);
+    const anchor = cloneFile.querySelector("a");
+    const pathArray = fileUrl.split("/");
+    anchor.text = pathArray[pathArray.length - 1];
+    // ^ over lå her fra før. v under er nytt
+    anchor.download = anchor.text
+    anchor.href = URL.createObjectURL(blob)
+    return anchor;
 }
 
 function addAthleteRow(event) {
@@ -207,7 +211,7 @@ async function uploadFiles(event, athlete) {
 
                 let tabPanel = document.querySelector(`#tab-contents-${athlete.username}`)
                 let divFiles = tabPanel.querySelector(".uploaded-files");
-                let aFile = createFileLink(templateFile, data["file"]);
+                let aFile = await createFileLink(templateFile, data["file"]);
                 divFiles.appendChild(aFile);
             } else {
                 let data = await response.json();
@@ -223,5 +227,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     await displayFiles();
     
     let buttonSubmitRoster = document.querySelector("#button-submit-roster");
-    buttonSubmitRoster.addEventListener("click", async () => await submitRoster());
+    buttonSubmitRoster.addEventListener("click", async () => await submitRoster())
 });

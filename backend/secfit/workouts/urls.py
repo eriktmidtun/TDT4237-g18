@@ -43,5 +43,6 @@ urlpatterns = format_suffix_patterns(
             name="workoutfile-detail",
         ),
         path("api/auth/", include("rest_framework.urls")),
+        path("media/workouts/<int:workout_id>/<str:filename>", views.WorkoutFileResponse.as_view(), name="media_workout_file")
     ]
 )

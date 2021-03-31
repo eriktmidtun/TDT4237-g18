@@ -36,11 +36,12 @@ async function retrieveWorkout(id) {
         // files
         let filesDiv = document.querySelector("#uploaded-files");
         for (let file of workoutData.files) {
-            let a = document.createElement("a");
-            a.href = file.file;
-            let pathArray = file.file.split("/");
-            a.text = pathArray[pathArray.length - 1];
-            a.className = "me-2";
+            // let a = document.createElement("a");
+            // a.href = file.file;
+            // let pathArray = file.file.split("/");
+            // a.text = pathArray[pathArray.length - 1];
+            // a.className = "me-2";
+            const a = await createFileLink(file.file)
             filesDiv.appendChild(a);
         }
 
@@ -100,6 +101,18 @@ async function retrieveWorkout(id) {
         }
     }
     return workoutData;     
+}
+
+async function createFileLink(fileUrl) {
+    const resp = await sendRequest('GET', fileUrl);
+    const blob = await resp.blob();
+    const anchor = document.createElement("a");
+    const pathArray = fileUrl.split("/");
+    anchor.text = pathArray[pathArray.length - 1];
+    // ^ over lå her fra før. v under er nytt
+    anchor.download = anchor.text
+    anchor.href = URL.createObjectURL(blob)
+    return anchor;
 }
 
 function handleCancelDuringWorkoutEdit() {

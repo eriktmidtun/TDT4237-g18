@@ -140,11 +140,7 @@ async function displayFiles() {
             divFiles = document.querySelector(`#list-${file.owner}`);
         }
 
-        let cloneFile = templateFile.content.cloneNode(true);
-        let aFile = cloneFile.querySelector("a");
-        aFile.href = file.file;
-        let pathArray = file.file.split("/");
-        aFile.text = pathArray[pathArray.length - 1];
+        const aFile = await createFileLink(templateFile, file.file);
 
         divFiles.appendChild(aFile);
     }
@@ -158,6 +154,19 @@ async function displayFiles() {
         p.innerText = "There are currently no files uploaded for this user.";
         document.querySelector("#list-files-div").append(p);
     }
+}
+
+async function createFileLink(templateFile, fileUrl) {
+    const resp = await sendRequest('GET', fileUrl);
+    const blob = await resp.blob();
+    const cloneFile = templateFile.content.cloneNode(true);
+    const anchor = cloneFile.querySelector("a");
+    const pathArray = fileUrl.split("/");
+    anchor.text = pathArray[pathArray.length - 1];
+    // ^ over lå her fra før. v under er nytt
+    anchor.download = anchor.text
+    anchor.href = URL.createObjectURL(blob)
+    return anchor;
 }
 
 async function getReceivedRequests() {
