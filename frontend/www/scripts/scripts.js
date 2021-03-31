@@ -204,6 +204,9 @@ function createAlert(header, data) {
   return alertDiv;
 
 }
+function htmlEntities(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/[\/]/g, '&#x2F;');
+}
 
 window.addEventListener("DOMContentLoaded", updateNavBar);
 

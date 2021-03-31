@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.serializers import HyperlinkedRelatedField
 from comments.models import Comment, Like
 from workouts.models import Workout
+from django.utils.html import escape
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
@@ -9,6 +10,9 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     workout = HyperlinkedRelatedField(
         queryset=Workout.objects.all(), view_name="workout-detail"
     )
+    
+    def validate_content(self,value):
+        return escape(value)
 
     class Meta:
         model = Comment
