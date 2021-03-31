@@ -26,8 +26,8 @@ function updateNavBar() {
 
   if (isUserAuthenticated()) {
     document.getElementById("btn-logout").classList.remove("hide");
-
     document.querySelector('a[href="logout.html"').classList.remove("hide");
+    document.querySelector('a[href="security.html"').classList.remove("hide");
     document.querySelector('a[href="workouts.html"').classList.remove("hide");
     document.querySelector('a[href="mycoach.html"').classList.remove("hide");
     document.querySelector('a[href="exercises.html"').classList.remove("hide");

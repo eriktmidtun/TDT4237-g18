@@ -33,16 +33,24 @@ class IsCoach(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        return request.user == obj.athlete.coach    
+        return request.user == obj.athlete.coach
+
 
 class IsOfferOwnerOrRecipient(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user == obj.owner or request.user == obj.recipient
 
+
 class IsOfferRecipient(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user == obj.recipient
 
+
 class IsOfferOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user == obj.owner
+
+
+class TwoFactorNotEnabled(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return true

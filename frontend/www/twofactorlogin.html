@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Two factor code</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
     <script src="https://kit.fontawesome.com/0ce6c392ca.js" crossorigin="anonymous"></script>
@@ -16,23 +16,14 @@
     <div class="container">       
         <div class="card mt-3 border-0">
         <article class="card-body mx-auto">
-            <h4 class="card-title mt-3 text-center">Log In</h4>
-            <form id="form-login">
+            <h4 class="card-title mt-3 text-center">Type your two factor code</h4>
+            <form id="form-login-totp">
                 <div class="input-group mb-2">
                     <span class="input-group-text"> <i class="fas fa-user"></i> </span>
-                    <input name="username" class="form-control" placeholder="User name" type="text" required>
-                </div> <!-- form-group// -->
-                <div class="input-group mb-2">
-                    <span class="input-group-text"> <i class="fas fa-lock"></i> </span>
-                    <input class="form-control" name="password" placeholder="Password" type="password" required>
+                    <input name="totp_code" class="form-control" placeholder="123456" type="text" required>
                 </div> <!-- form-group// -->    
-                <div class="input-group mb-2">
-                    <label class="checkbox" style="border: none;">
-                        <input type="checkbox" value="rememberMe" id="rememberMe"> Remember me
-                    </label>
-                </div> <!-- form-group// -->          
                 <div class="d-grid">
-                    <input type="button" class="btn btn-primary" id="btn-login" value=" Log in  ">
+                    <input type="button" class="btn btn-primary" id="btn-login-totp" value=" Log in  ">
                 </div> <!-- form-group// -->
             </form>
         </article>
@@ -42,7 +33,7 @@
 
     <script src="scripts/defaults.js"></script>
     <script src="scripts/scripts.js"></script>
-    <script src="scripts/login.js"></script>
+    <script src="scripts/twofactorlogin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </body>
 </html>

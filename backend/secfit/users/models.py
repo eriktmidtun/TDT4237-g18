@@ -11,8 +11,11 @@ class User(AbstractUser):
     """
     Standard Django User model with an added field for a user's coach.
     """
-    email = models.EmailField(blank=False, null=False, unique=True, max_length=254, verbose_name="email address")
-    is_verified=models.BooleanField(default=False)
+    email = models.EmailField(
+        blank=False, null=False, unique=True, max_length=254, verbose_name="email address")
+    is_verified = models.BooleanField(default=False)
+    secret2fa = models.CharField(max_length=50, blank=True, null=True)
+    is_verified_2fa = models.BooleanField(default=False)
     coach = models.ForeignKey(
         "self", on_delete=models.CASCADE, related_name="athletes", blank=True, null=True
     )
@@ -40,7 +43,8 @@ class AthleteFile(models.Model):
     owner = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="athlete_files"
     )
-    file = models.FileField(upload_to=athlete_directory_path, validators=[PDFValidator])
+    file = models.FileField(
+        upload_to=athlete_directory_path, validators=[PDFValidator])
 
 
 class Offer(models.Model):
@@ -70,8 +74,10 @@ class Offer(models.Model):
         (DECLINED, "Declined"),
     )
 
-    status = models.CharField(max_length=8, choices=STATUS_CHOICES, default=PENDING)
+    status = models.CharField(
+        max_length=8, choices=STATUS_CHOICES, default=PENDING)
     timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class RememberMe(models.Model):
     """Django model for an remember_me cookie used for remember me functionality.
