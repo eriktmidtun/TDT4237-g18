@@ -22,7 +22,7 @@ def send_reset_password_mail(user, request):
     return send_mail('Reset your password', mail_body, None, [user.email], fail_silently=False)
 
 def _get_protocol(request):
-    return "https://" if request.is_secure() else "http://"
+    return "https://"
 
 def _get_base_url(request):
     return _get_protocol(request) + get_current_site(request).domain

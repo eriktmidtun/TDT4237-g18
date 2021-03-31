@@ -338,8 +338,8 @@ window.addEventListener("DOMContentLoaded", async () => {
         let workoutData = await retrieveWorkout(id);
         await retrieveComments(id);
         postCommentButton.addEventListener("click", (async (id) => await createComment(id)).bind(undefined, id));
-
-        if (workoutData["owner"] == currentUser.url) {
+        
+        if (set_protocol(workoutData["owner"]) == set_protocol(currentUser.url)) {
             editWorkoutButton.classList.remove("hide");
             editWorkoutButton.addEventListener("click", handleEditWorkoutButtonClick);
             deleteWorkoutButton.addEventListener("click", (async (id) => await deleteWorkout(id)).bind(undefined, id));

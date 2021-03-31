@@ -59,7 +59,7 @@ function getCookieValue(name) {
   return cookieValue;
 }
 
-async function sendRequest(method, url, body, contentType="application/json; charset=UTF-8") {
+async function sendRequest(method, orig_url, body, contentType="application/json; charset=UTF-8") {
   if (body && contentType.includes("json")) {
     body = JSON.stringify(body);
   }
@@ -69,6 +69,7 @@ async function sendRequest(method, url, body, contentType="application/json; cha
   if (contentType) myHeaders.set("Content-Type", contentType);
   if (getCookieValue("access")) myHeaders.set("Authorization", "Bearer " + getCookieValue("access"));
   let myInit = {headers: myHeaders, method: method, body: body};
+  let url = set_protocol(orig_url)
   let myRequest = new Request(url, myInit);
 
   let response = await fetch(myRequest);
@@ -97,7 +98,14 @@ async function sendRequest(method, url, body, contentType="application/json; cha
 
   return response;
 }
-
+function set_protocol(orig_url) {
+  let host = `${HOST}`;
+  let url = orig_url
+  if(host.includes('https') && !url.includes('https')){
+      url = ('https' + url.substring(4))
+  }
+  return url
+}
 function setReadOnly(readOnly, selector) {
   let form = document.querySelector(selector);
   let formData = new FormData(form);
