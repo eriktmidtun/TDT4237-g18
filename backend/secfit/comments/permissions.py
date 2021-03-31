@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from workouts.models import Workout
 
 
 class IsCommentVisibleToUser(permissions.BasePermission):
@@ -19,3 +20,18 @@ class IsCommentVisibleToUser(permissions.BasePermission):
             or (obj.workout.visibility == "CO" and obj.owner.coach == request.user)
             or obj.workout.owner == request.user
         )
+
+class CanUserCommentOnWorkout(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            if request.data.get("workout"):
+                workout_id = request.data["workout"].split("/")[-2]
+                workout = Workout.objects.get(pk=workout_id)
+                if workout:
+                    return (
+                        workout.visibility == "PU"
+                        or (workout.visibility == "CO" and workout.owner.coach == request.user)
+                        or workout.owner == request.user
+                    )
+            return False
+        return True
