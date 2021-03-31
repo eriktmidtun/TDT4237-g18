@@ -8,6 +8,8 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("api/users/", views.UserList.as_view(), name="user-list"),
+    path("api/users/set-new-password/", views.SetNewPassword.as_view(), name="set-new-password"),
+    path("api/users/password-reset/", views.ResetPasswordEmailRequest.as_view(), name="reset-password"),
     path("api/users/verify/", views.VerifyEmail.as_view(), name="verify-email"),
     path("api/users/<int:pk>/", views.UserDetail.as_view(), name="user-detail"),
     path("api/users/two_factor/totp_uri/",
