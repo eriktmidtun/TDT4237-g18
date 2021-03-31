@@ -39,6 +39,15 @@ class IsCoachAndVisibleToCoach(permissions.BasePermission):
             obj.visibility == "PU" or obj.visibility == "CO"
         )
 
+class IsUserAllowedToViewWorkoutFile(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        workout = obj.workout
+        return (
+            workout.visibility == "PU"
+            or (workout.visibility == "CO" and workout.owner.coach == request.user)
+            or workout.owner == request.user
+        )
+
 
 class IsCoachOfWorkoutAndVisibleToCoach(permissions.BasePermission):
     """Checks whether the requesting user is the existing workout's owner's coach

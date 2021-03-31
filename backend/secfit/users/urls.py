@@ -24,4 +24,5 @@ urlpatterns = [
     path("api/token/", views.LoginView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/remember_me/", views.RememberMe.as_view(), name="remember_me"),
+    path("media/users/<int:athlete_id>/<str:filename>", views.AthleteFileResponse.as_view(), name="media_athlete_file")
 ]

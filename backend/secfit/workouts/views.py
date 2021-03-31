@@ -1,6 +1,6 @@
 """Contains views for the workouts application. These are mostly class-based views.
 """
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, views
 from rest_framework import permissions
 
 from rest_framework.parsers import (
@@ -19,6 +19,7 @@ from workouts.permissions import (
     IsReadOnly,
     IsPublic,
     IsWorkoutPublic,
+    IsUserAllowedToViewWorkoutFile
 )
 from workouts.mixins import CreateListModelMixin
 from workouts.models import Workout, Exercise, ExerciseInstance, WorkoutFile
@@ -27,6 +28,8 @@ from workouts.serializers import ExerciseInstanceSerializer, WorkoutFileSerializ
 from django.core.exceptions import PermissionDenied
 from rest_framework_simplejwt.tokens import RefreshToken
 import json
+from django.http import FileResponse, Http404
+from django.conf import settings
 
 @api_view(["GET"])
 def api_root(request, format=None):
@@ -119,6 +122,38 @@ class WorkoutDetail(
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
+class WorkoutFileResponse(
+    views.APIView
+):
+    permission_classes = [
+        permissions.IsAuthenticated & IsUserAllowedToViewWorkoutFile
+    ]
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        
+        path = f'{settings.MEDIA_ROOT}/{obj.file}'
+        return FileResponse(open(path, 'rb'))
+
+    
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        try:
+            obj = WorkoutFile.objects.get(
+                Q(workout=self.kwargs['workout_id']) & Q(file=f'workouts/{self.kwargs["workout_id"]}/{self.kwargs["filename"]}')
+            )
+        except:
+            raise Http404("Media does not exist")
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
 class ExerciseList(
     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView

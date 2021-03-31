@@ -1,5 +1,5 @@
 import django
-from rest_framework import mixins, generics, status
+from rest_framework import mixins, generics, status, views
 from workouts.mixins import CreateListModelMixin
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -22,6 +22,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
+
 from users.models import Offer, AthleteFile
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -35,6 +36,7 @@ from collections import namedtuple
 import base64, pickle
 from django.core.signing import Signer
 from .util import send_email_verification_mail, EmailVerificationToken
+from django.http import FileResponse, Http404
 
 # Create your views here.
 class UserList(mixins.ListModelMixin, generics.GenericAPIView):
@@ -215,6 +217,37 @@ class AthleteFileDetail(
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+class AthleteFileResponse(
+    views.APIView
+):
+    permission_classes = [permissions.IsAuthenticated & (IsAthlete | IsOwner | IsCoach)]
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        
+        path = f'{settings.MEDIA_ROOT}/{obj.file}'
+        return FileResponse(open(path, 'rb'))
+
+    
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        try:
+            obj = AthleteFile.objects.get(
+                Q(athlete=self.kwargs['athlete_id']) & Q(file=f'users/{self.kwargs["athlete_id"]}/{self.kwargs["filename"]}')
+            )
+        except:
+            raise Http404("Media does not exist")
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
 # Allow users to save a persistent session in their browser
 class RememberMe(
