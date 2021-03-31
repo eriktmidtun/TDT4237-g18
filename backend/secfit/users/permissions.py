@@ -6,6 +6,13 @@ class IsCurrentUser(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj == request.user
 
+class IsPostOrIsAuthenticated(permissions.BasePermission):        
+    def has_permission(self, request, view):
+        if request.method == 'POST':
+            return True
+        
+        return request.user and request.user.is_authenticated
+
 
 class IsAthlete(permissions.BasePermission):
     def has_permission(self, request, view):
